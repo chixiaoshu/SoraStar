@@ -35,13 +35,13 @@
 /* Private typedef -----------------------------------------------------------*/
 /* USER CODE BEGIN PTD */
 
-// ¶¨Òå LED ¿ØÖÆ½á¹¹Ìå
+// å®šä¹‰ LED æŽ§åˆ¶ç»“æž„ä½“
 typedef struct{
-    void (*On)(GPIO_TypeDef *, uint16_t);  // µãÁÁ LED µÄº¯ÊýÖ¸Õë
-    void (*Off)(GPIO_TypeDef *, uint16_t); // Ï¨Ãð LED µÄº¯ÊýÖ¸Õë
-    void (*Toggle)(GPIO_TypeDef *, uint16_t); // ·­×ª LED µÄº¯ÊýÖ¸Õë
-    void (*Loop)(GPIO_TypeDef *, uint16_t, uint16_t); // Ñ­»·µãÁÁÓëÏ¨Ãð LED µÄº¯ÊýÖ¸Õë
-    uint8_t (*Status)(GPIO_TypeDef *, uint16_t); // ·µ»Ø LED µÄ×´Ì¬º¯ÊýÖ¸Õë
+    void (*On)(GPIO_TypeDef *, uint16_t);  // ç‚¹äº® LED çš„å‡½æ•°æŒ‡é’ˆ
+    void (*Off)(GPIO_TypeDef *, uint16_t); // ç†„ç­ LED çš„å‡½æ•°æŒ‡é’ˆ
+    void (*Toggle)(GPIO_TypeDef *, uint16_t); // ç¿»è½¬ LED çš„å‡½æ•°æŒ‡é’ˆ
+    void (*Loop)(GPIO_TypeDef *, uint16_t, uint16_t); // å¾ªçŽ¯ç‚¹äº®ä¸Žç†„ç­ LED çš„å‡½æ•°æŒ‡é’ˆ
+    uint8_t (*Status)(GPIO_TypeDef *, uint16_t); // è¿”å›ž LED çš„çŠ¶æ€å‡½æ•°æŒ‡é’ˆ
 } LED_Control;
 
 
@@ -94,32 +94,32 @@ void KEY_Process(void);
 void UART_Process(void);
 
 
-// LED µãÁÁº¯Êý
+// LED ç‚¹äº®å‡½æ•°
 void LED_On(GPIO_TypeDef *GPIOx, uint16_t LEDx_Pin)
 {
   HAL_GPIO_WritePin(GPIOx, LEDx_Pin, GPIO_PIN_SET);
 }
 
-// LED Ï¨Ãðº¯Êý
+// LED ç†„ç­å‡½æ•°
 void LED_Off(GPIO_TypeDef *GPIOx, uint16_t LEDx_Pin)
 {
   HAL_GPIO_WritePin(GPIOx, LEDx_Pin, GPIO_PIN_RESET);
 }
 
-// ·­×ª LED µÄº¯Êý
+// ç¿»è½¬ LED çš„å‡½æ•°
 void LED_Toggle(GPIO_TypeDef *GPIOx, uint16_t LEDx_Pin)
 {
   HAL_GPIO_TogglePin(GPIOx, LEDx_Pin);
 }
 
-// Ñ­»·µãÁÁÓëÏ¨Ãð LED µÄº¯Êý
+// å¾ªçŽ¯ç‚¹äº®ä¸Žç†„ç­ LED çš„å‡½æ•°
 void LED_Loop(GPIO_TypeDef *GPIOx, uint16_t LEDx_Pin, uint16_t Delay)
 {
   HAL_GPIO_TogglePin(GPIOx, LEDx_Pin);
   HAL_Delay(Delay);
 }
 
-// ¼ì²â LED ×´Ì¬µÄº¯Êý
+// æ£€æµ‹ LED çŠ¶æ€çš„å‡½æ•°
 uint8_t LED_Status(GPIO_TypeDef *GPIOx, uint16_t LEDx_Pin)
 {
   uint8_t Status;
@@ -146,7 +146,7 @@ uint8_t LED_Status(GPIO_TypeDef *GPIOx, uint16_t LEDx_Pin)
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
 
-// ³õÊ¼»¯½á¹¹Ìå
+// åˆå§‹åŒ–ç»“æž„ä½“
 LED_Control LED = {
   .On = LED_On,
   .Off = LED_Off,
@@ -194,14 +194,14 @@ int main(void)
   MX_SPI1_Init();
   /* USER CODE BEGIN 2 */
 
-  // ¿ªÆô UART DMA½ÓÊÕ
+  // å¼€å¯ UART DMAæŽ¥æ”¶
   
   if (HAL_UARTEx_ReceiveToIdle_DMA(&huart1, (uint8_t *)&dmaRx.data, REC_BUF_LEN) != HAL_OK)
   {
     Error_Handler();
   }
 
-  // ¿ªÆô ADC_DMA ÄÚ²¿TemperatureÓëVref´«¸ÐÆ÷Í¨µÀ×ª»»
+  // å¼€å¯ ADC_DMA å†…éƒ¨Temperatureä¸ŽVrefä¼ æ„Ÿå™¨é€šé“è½¬æ¢
   if (HAL_ADC_Start_DMA(&hadc1, (uint32_t *)&ADC_originValue, 2) != HAL_OK)
   {
     Error_Handler();
@@ -333,7 +333,7 @@ void UART_Process(void)
 {
   if (dmaRx.len >= 4 && (dmaRx.data[dmaRx.len - 2] == ENDER_H && dmaRx.data[dmaRx.len - 1] == ENDER_L))
   {
-    if ((dmaRx.data[0] == HEADER_H && dmaRx.data[1] == HEADER_L)) // ¿ªÍ·ÕýÈ·
+    if ((dmaRx.data[0] == HEADER_H && dmaRx.data[1] == HEADER_L)) // å¼€å¤´æ­£ç¡®
     {
       uint8_t LED_State;
       char temBuf[16];
@@ -367,17 +367,17 @@ void UART_Process(void)
         }
         break;
       case 'T':
-        tempValue = ((ADC_originValue[0] / 4095.0) * 3300 - 760) / 2.5 + 25; // ¸ù¾ÝADCÖµ¼ÆËãÎÂ¶È
+        tempValue = ((ADC_originValue[0] / 4095.0) * 3300 - 760) / 2.5 + 25; // æ ¹æ®ADCå€¼è®¡ç®—æ¸©åº¦
         sprintf(temBuf, "Temp:%.1f\r\n", tempValue);
         HAL_UART_Transmit(&huart1, (uint8_t *)temBuf, 12, 0xFF);
         break;
       case 'V':
-        tempValue = ((ADC_originValue[1] / 4095.0) * 3.3);       // ¸ù¾Ý ADC Öµ¼ÆËãVrefInÆ¬ÄÚ²ÎÕÕµçÑ¹
+        tempValue = ((ADC_originValue[1] / 4095.0) * 3.3);       // æ ¹æ® ADC å€¼è®¡ç®—VrefInç‰‡å†…å‚ç…§ç”µåŽ‹
         sprintf(temBuf, "VREFINT:%.2fV\r\n", tempValue);
         HAL_UART_Transmit(&huart1, (uint8_t *)temBuf, 16, 0xFF);
         break;
       case 'A':
-        tempValue = ((ADC2_originValue[0] / 4095.0) * 3.3);       // ¸ù¾Ý ADC Öµ¼ÆËãGPIO»ñÈ¡µçÑ¹
+        tempValue = ((ADC2_originValue[0] / 4095.0) * 3.3);       // æ ¹æ® ADC å€¼è®¡ç®—GPIOèŽ·å–ç”µåŽ‹
         sprintf(temBuf, "ADCIN:%.2fV\r\n", tempValue);
         // tempValue = ((ADC2_originValue[0] / 4095.0) * 3.3);
         // sprintf(temBuf, "PC05=%.2f\r\n", tempValue);
@@ -393,10 +393,10 @@ void UART_Process(void)
         
       }
       
-      // ±¾´ÎÊý¾Ý½áÊø£¬ÖØÐÂ½ÓÊÕ
+      // æœ¬æ¬¡æ•°æ®ç»“æŸï¼Œé‡æ–°æŽ¥æ”¶
       dmaRx.len = 0;
     }
-    else // ¿ªÍ·´íÎó£¬ÖØÐÂ½ÓÊÕ
+    else // å¼€å¤´é”™è¯¯ï¼Œé‡æ–°æŽ¥æ”¶
     {
       dmaRx.len = 0;
     }
@@ -416,25 +416,25 @@ void HAL_UART_ErrorCallback(UART_HandleTypeDef *huart)
 {
   if (HAL_UART_GetError(huart) & HAL_UART_ERROR_PE)
   { /* Parity error */
-    // ÆæÅ¼Ð£Ñé´íÎó
+    // å¥‡å¶æ ¡éªŒé”™è¯¯
     __HAL_UART_CLEAR_PEFLAG(huart);
   }
   else if (HAL_UART_GetError(huart) & HAL_UART_ERROR_NE)
   { /* Noise error */
-    // ÔëÉù´íÎó
+    // å™ªå£°é”™è¯¯
     __HAL_UART_CLEAR_NEFLAG(huart);
   }
   else if (HAL_UART_GetError(huart) & HAL_UART_ERROR_FE)
   { /* Frame error */
-    // Ö¡¸ñÊ½´íÎó
+    // å¸§æ ¼å¼é”™è¯¯
     __HAL_UART_CLEAR_FEFLAG(huart);
   }
   else if (HAL_UART_GetError(huart) & HAL_UART_ERROR_ORE)
   { /* Overrun error */
-    // Êý¾ÝÌ«¶à´®¿ÚÀ´²»¼°½ÓÊÕ´íÎó
+    // æ•°æ®å¤ªå¤šä¸²å£æ¥ä¸åŠæŽ¥æ”¶é”™è¯¯
     __HAL_UART_CLEAR_OREFLAG(huart);
   }
-  // µ±Õâ¸ö´®¿Ú·¢ÉúÁË´íÎóÐèÒªÒªÖØÐÂÊ¹ÄÜ½ÓÊÕÖÐ¶Ï
+  // å½“è¿™ä¸ªä¸²å£å‘ç”Ÿäº†é”™è¯¯éœ€è¦è¦é‡æ–°ä½¿èƒ½æŽ¥æ”¶ä¸­æ–­
   if (huart->Instance == USART1)
   {
     HAL_UARTEx_ReceiveToIdle_DMA(&huart1, (uint8_t *)&dmaRx.data, REC_BUF_LEN);

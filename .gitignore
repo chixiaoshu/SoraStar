@@ -1,3 +1,7 @@
-MDK-ARM/SoraStar
-!MDK-ARM/SoraStar/*.hex
-!MDK-ARM/SoraStar/*.axf
+.vscode
+MDK-ARM/*
+
+!MDK-ARM/*.s
+!MDK-ARM/*.lst
+!MDK-ARM/*.uvoptx
+!MDK-ARM/*.uvprojx

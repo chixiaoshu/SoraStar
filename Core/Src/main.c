@@ -1,20 +1,20 @@
 /* USER CODE BEGIN Header */
 /**
-  ******************************************************************************
-  * @file           : main.c
-  * @brief          : Main program body
-  ******************************************************************************
-  * @attention
-  *
-  * Copyright (c) 2024 STMicroelectronics.
-  * All rights reserved.
-  *
-  * This software is licensed under terms that can be found in the LICENSE file
-  * in the root directory of this software component.
-  * If no LICENSE file comes with this software, it is provided AS-IS.
-  *
-  ******************************************************************************
-  */
+ ******************************************************************************
+ * @file           : main.c
+ * @brief          : Main program body
+ ******************************************************************************
+ * @attention
+ *
+ * Copyright (c) 2024 STMicroelectronics.
+ * All rights reserved.
+ *
+ * This software is licensed under terms that can be found in the LICENSE file
+ * in the root directory of this software component.
+ * If no LICENSE file comes with this software, it is provided AS-IS.
+ *
+ ******************************************************************************
+ */
 /* USER CODE END Header */
 /* Includes ------------------------------------------------------------------*/
 #include "main.h"
@@ -29,21 +29,12 @@
 /* USER CODE BEGIN Includes */
 #include "stdio.h"
 #include "string.h"
+#include "led.h"
 
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
 /* USER CODE BEGIN PTD */
-
-// 定义 LED 控制结构体
-typedef struct{
-    void (*On)(GPIO_TypeDef *, uint16_t);  // 点亮 LED 的函数指针
-    void (*Off)(GPIO_TypeDef *, uint16_t); // 熄灭 LED 的函数指针
-    void (*Toggle)(GPIO_TypeDef *, uint16_t); // 翻转 LED 的函数指针
-    void (*Loop)(GPIO_TypeDef *, uint16_t, uint16_t); // 循环点亮与熄灭 LED 的函数指针
-    uint8_t (*Status)(GPIO_TypeDef *, uint16_t); // 返回 LED 的状态函数指针
-} LED_Control;
-
 
 /* USER CODE END PTD */
 
@@ -53,11 +44,10 @@ typedef struct{
 #define ADCSYS 2
 #define ADCIN 1
 #define REC_BUF_LEN 64
-#define HEADER_H  0x73 // 's'
-#define HEADER_L  0x63 // 'c'
-#define ENDER_H   0x78 // 'x'
-#define ENDER_L   0x79 // 'y'
-
+#define HEADER_H 0x73 // 's'
+#define HEADER_L 0x63 // 'c'
+#define ENDER_H 0x78  // 'x'
+#define ENDER_L 0x79  // 'y'
 
 /* USER CODE END PD */
 
@@ -72,13 +62,11 @@ typedef struct{
 uint16_t sysTSec = 0;
 uint8_t sysVarFlag = 0;
 
-
 extern DMA_HandleTypeDef hdma_usart1_rx;
 UART_msg dmaRx = {0};
 
-
 uint8_t rec_byte;
-uint8_t rec_index=0;
+uint8_t rec_index = 0;
 uint8_t rec_data[REC_BUF_LEN] = {0};
 
 uint32_t ADC_originValue[ADCSYS] = {0};
@@ -93,74 +81,25 @@ uint8_t KEY_Read(uint16_t Period);
 void KEY_Process(void);
 void UART_Process(void);
 
-
-// LED 点亮函数
-void LED_On(GPIO_TypeDef *GPIOx, uint16_t LEDx_Pin)
-{
-  HAL_GPIO_WritePin(GPIOx, LEDx_Pin, GPIO_PIN_SET);
-}
-
-// LED 熄灭函数
-void LED_Off(GPIO_TypeDef *GPIOx, uint16_t LEDx_Pin)
-{
-  HAL_GPIO_WritePin(GPIOx, LEDx_Pin, GPIO_PIN_RESET);
-}
-
-// 翻转 LED 的函数
-void LED_Toggle(GPIO_TypeDef *GPIOx, uint16_t LEDx_Pin)
-{
-  HAL_GPIO_TogglePin(GPIOx, LEDx_Pin);
-}
-
-// 循环点亮与熄灭 LED 的函数
-void LED_Loop(GPIO_TypeDef *GPIOx, uint16_t LEDx_Pin, uint16_t Delay)
-{
-  HAL_GPIO_TogglePin(GPIOx, LEDx_Pin);
-  HAL_Delay(Delay);
-}
-
-// 检测 LED 状态的函数
-uint8_t LED_Status(GPIO_TypeDef *GPIOx, uint16_t LEDx_Pin)
-{
-  uint8_t Status;
-  typedef enum
-  {
-    Off = 0,
-    On = 1
-  } LED_State;
-
-  Status = HAL_GPIO_ReadPin(GPIOx, LEDx_Pin);
-  if (Status == On)
-  {
-    return On;
-  }
-  else if (Status == Off)
-  {
-    return Off;
-  }
-  return Off;
-}
-
 /* USER CODE END PFP */
 
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
 
-// 初始化结构体
+// 创建 LED 结构体
 LED_Control LED = {
-  .On = LED_On,
-  .Off = LED_Off,
-  .Toggle = LED_Toggle,
-  .Loop = LED_Loop,
-  .Status = LED_Status
-};
+    .On = LED_On,
+    .Off = LED_Off,
+    .Toggle = LED_Toggle,
+    .Loop = LED_Loop,
+    .Status = LED_Status};
 
 /* USER CODE END 0 */
 
 /**
-  * @brief  The application entry point.
-  * @retval int
-  */
+ * @brief  The application entry point.
+ * @retval int
+ */
 int main(void)
 {
 
@@ -195,7 +134,7 @@ int main(void)
   /* USER CODE BEGIN 2 */
 
   // 开启 UART DMA接收
-  
+
   if (HAL_UARTEx_ReceiveToIdle_DMA(&huart1, (uint8_t *)&dmaRx.data, REC_BUF_LEN) != HAL_OK)
   {
     Error_Handler();
@@ -211,7 +150,6 @@ int main(void)
     Error_Handler();
   }
 
- 
   /* USER CODE END 2 */
 
   /* Infinite loop */
@@ -229,9 +167,8 @@ int main(void)
     //   // }
     //   // ErrorBuf = HAL_UART_GetError(&huart1);
     //   // HAL_UART_Transmit(&huart1, (uint8_t *)&ErrorBuf, 1, 0xFF);
-      
+
     // }
-    
 
     KEY_Process();
     UART_Process();
@@ -244,22 +181,22 @@ int main(void)
 }
 
 /**
-  * @brief System Clock Configuration
-  * @retval None
-  */
+ * @brief System Clock Configuration
+ * @retval None
+ */
 void SystemClock_Config(void)
 {
   RCC_OscInitTypeDef RCC_OscInitStruct = {0};
   RCC_ClkInitTypeDef RCC_ClkInitStruct = {0};
 
   /** Configure the main internal regulator output voltage
-  */
+   */
   __HAL_RCC_PWR_CLK_ENABLE();
   __HAL_PWR_VOLTAGESCALING_CONFIG(PWR_REGULATOR_VOLTAGE_SCALE1);
 
   /** Initializes the RCC Oscillators according to the specified parameters
-  * in the RCC_OscInitTypeDef structure.
-  */
+   * in the RCC_OscInitTypeDef structure.
+   */
   RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_HSE;
   RCC_OscInitStruct.HSEState = RCC_HSE_ON;
   RCC_OscInitStruct.PLL.PLLState = RCC_PLL_ON;
@@ -274,9 +211,8 @@ void SystemClock_Config(void)
   }
 
   /** Initializes the CPU, AHB and APB buses clocks
-  */
-  RCC_ClkInitStruct.ClockType = RCC_CLOCKTYPE_HCLK|RCC_CLOCKTYPE_SYSCLK
-                              |RCC_CLOCKTYPE_PCLK1|RCC_CLOCKTYPE_PCLK2;
+   */
+  RCC_ClkInitStruct.ClockType = RCC_CLOCKTYPE_HCLK | RCC_CLOCKTYPE_SYSCLK | RCC_CLOCKTYPE_PCLK1 | RCC_CLOCKTYPE_PCLK2;
   RCC_ClkInitStruct.SYSCLKSource = RCC_SYSCLKSOURCE_PLLCLK;
   RCC_ClkInitStruct.AHBCLKDivider = RCC_SYSCLK_DIV1;
   RCC_ClkInitStruct.APB1CLKDivider = RCC_HCLK_DIV4;
@@ -372,27 +308,26 @@ void UART_Process(void)
         HAL_UART_Transmit(&huart1, (uint8_t *)temBuf, 12, 0xFF);
         break;
       case 'V':
-        tempValue = ((ADC_originValue[1] / 4095.0) * 3.3);       // 根据 ADC 值计算VrefIn片内参照电压
+        tempValue = ((ADC_originValue[1] / 4095.0) * 3.3); // 根据 ADC 值计算VrefIn片内参照电压
         sprintf(temBuf, "VREFINT:%.2fV\r\n", tempValue);
         HAL_UART_Transmit(&huart1, (uint8_t *)temBuf, 16, 0xFF);
         break;
       case 'A':
-        tempValue = ((ADC2_originValue[0] / 4095.0) * 3.3);       // 根据 ADC 值计算GPIO获取电压
+        tempValue = ((ADC2_originValue[0] / 4095.0) * 3.3); // 根据 ADC 值计算GPIO获取电压
         sprintf(temBuf, "ADCIN:%.2fV\r\n", tempValue);
         // tempValue = ((ADC2_originValue[0] / 4095.0) * 3.3);
         // sprintf(temBuf, "PC05=%.2f\r\n", tempValue);
         HAL_UART_Transmit(&huart1, (uint8_t *)temBuf, 14, 0xFF);
       }
 
-      if (dmaRx.data[2] == '?'||dmaRx.data[3] == '?')
+      if (dmaRx.data[2] == '?' || dmaRx.data[3] == '?')
       {
         HAL_UART_Transmit(&huart1, (uint8_t *)"Help:sc??xy\r\n", 12, 0xFF);
         HAL_UART_Transmit(&huart1, (uint8_t *)"'s''c'..'x''y'", 15, 0xFF);
         HAL_UART_Transmit(&huart1, (uint8_t *)"\r\n.1:LED:N/O/T", 16, 0xFF);
         HAL_UART_Transmit(&huart1, (uint8_t *)"\r\n.2:L/T/V", 11, 0xFF);
-        
       }
-      
+
       // 本次数据结束，重新接收
       dmaRx.len = 0;
     }
@@ -444,9 +379,9 @@ void HAL_UART_ErrorCallback(UART_HandleTypeDef *huart)
 /* USER CODE END 4 */
 
 /**
-  * @brief  This function is executed in case of error occurrence.
-  * @retval None
-  */
+ * @brief  This function is executed in case of error occurrence.
+ * @retval None
+ */
 void Error_Handler(void)
 {
   /* USER CODE BEGIN Error_Handler_Debug */
@@ -458,14 +393,14 @@ void Error_Handler(void)
   /* USER CODE END Error_Handler_Debug */
 }
 
-#ifdef  USE_FULL_ASSERT
+#ifdef USE_FULL_ASSERT
 /**
-  * @brief  Reports the name of the source file and the source line number
-  *         where the assert_param error has occurred.
-  * @param  file: pointer to the source file name
-  * @param  line: assert_param error line source number
-  * @retval None
-  */
+ * @brief  Reports the name of the source file and the source line number
+ *         where the assert_param error has occurred.
+ * @param  file: pointer to the source file name
+ * @param  line: assert_param error line source number
+ * @retval None
+ */
 void assert_failed(uint8_t *file, uint32_t line)
 {
   /* USER CODE BEGIN 6 */
